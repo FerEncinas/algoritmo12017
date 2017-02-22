@@ -1,0 +1,18 @@
+// Nombre: Votacion del ciudadano
+// Autor:Fernando Encinas Amelunge
+// Fecha: 22-02-17
+
+#include "stdafx.h"
+#include <iostream>
+#include "conio.h"
+
+using namespace std;
+
+void main(){
+	int edad;
+	cout<<"Introdusta la edad del ciudadano: ";
+	cin>>edad;
+	 if(edad>=18)
+		cout<<"El ciudadano puede votar...";
+ getch();
+}
