@@ -1,0 +1,27 @@
+// Nombre: Ejercio 3
+// Autor:Fernando Encinas Amelunge
+// Fecha: 22-02-17
+
+#include "stdafx.h"
+#include <iostream>
+#include "conio.h"
+
+using namespace std;
+
+void main(){
+   int unidades,decenas,centenas,unidadesdemil,numero;
+   cout<<"Ingrese el numero:"<<endl;
+   cin>>numero;
+   if(numero<10000){
+    unidades=numero%10;
+    numero=numero/10;
+    decenas=(numero%10)*10;
+    numero=numero/10;
+    centenas=(numero%10)*100;
+    unidadesdemil=(numero/10)*1000;
+    cout<<"El numero contiene: "<<unidades<<"unidades + "<<decenas<<"decenas + "<<centenas<<"centenas + "<<unidadesdemil<<"unidades de mil";
+     }else{
+     cout<<"El numero no puede ser mayor a 10000"<<endl;
+     }
+ getch();
+}
