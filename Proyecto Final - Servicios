@@ -1,0 +1,911 @@
+// ProyectoServicios.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+#include <conio.h>
+#include <stdio.h>
+#include <iostream>
+#include <string>
+using namespace std;
+
+//nivel: 1->Admin, 2->Empleado, 3-> Cliente
+struct Usuario
+{
+	int id;
+	string nombre;
+	string contrasenha;
+
+	int estado;
+};
+
+struct EmpleadoAfiliado
+{
+	int id;
+	string nombre;
+	int servicio; //1: Plomero, 2: Electricista, 3: Pintor, 4: Albañil
+	float precio;
+
+	int idUsuario;
+
+	int estado;
+};
+
+struct Cliente
+{
+	int id;
+	string nombre;
+	string correo;
+
+	int idUsuario;
+
+	int estado;
+};
+
+struct Venta
+{
+	int id;
+	string fecha;
+
+	int idEmpleadoAfiliado;
+	int idCliente;
+
+	int estado;
+};
+
+void MenuPedidos(Usuario usuario_actual,int nivel);
+void MenuEmpleados(Usuario usuario_actual,int nivel);
+void MenuClientes(Usuario usuario_actual,int nivel);
+void MenuPrincipal(Usuario usuario_actual,int nivel);
+
+int LeerEntero(string mensaje);
+string LeerCadena(string mensaje);
+
+void LeerUsuario(Usuario &reg);
+void EncabezadoUsuario();
+void MostrarUsuario(Usuario reg);
+void AdicionarUsuario();
+int BuscarNivelUsuario(Usuario &usuario_actual);
+
+void LeerEmpleado(EmpleadoAfiliado &reg);
+void EncabezadoEmpleado();
+void MostrarEmpleado(EmpleadoAfiliado reg);
+void AdicionarEmpleado(int id);
+void ListarEmpleado();
+void BuscarEmpleado();
+void ModificarEmpleado();
+void EliminarEmpleado();
+float BuscarPrecioEmpleado(int id);
+void ReporteGanancias(Usuario usuario_actual,int nivel);
+
+void LeerCliente(Cliente &reg);
+void EncabezadoCliente();
+void MostrarCliente(Cliente reg);
+void AdicionarCliente(int id);
+void ListarCliente();
+void BuscarCliente();
+void ModificarCliente();
+void EliminarCliente();
+
+void LeerVenta(Venta &reg,int cliente);
+void EncabezadoVenta();
+void MostrarVenta(Venta reg);
+void AdicionarVenta(int cliente);
+void ListarVenta();
+void BuscarVenta();
+void ModificarVenta();
+void EliminarVenta();
+
+int main()
+{
+	Usuario usuario_actual;
+	int opcion = -1;
+	int nivel = 0;
+	do
+	{
+		cout<<endl;
+		cout<<"1. Ingresar"<<endl;
+		cout<<"2. Registrarse"<<endl;
+		cout<<"0. Salir"<<endl;
+		opcion = LeerEntero("ingresar opcion:");
+
+		switch(opcion)
+		{
+		case 1:
+			LeerUsuario(usuario_actual);
+			if(usuario_actual.nombre == "admin" && usuario_actual.contrasenha=="abc")
+			{
+				nivel = 1;
+			}
+			else
+			{
+				nivel = BuscarNivelUsuario(usuario_actual);
+			}
+
+			if(nivel == 0)
+			{
+				cout<<"nombre de usuario o contrasenha no validos"<<endl;
+			}
+			else
+			{
+				MenuPrincipal(usuario_actual,nivel);
+			}
+
+			break;
+		case 2:
+			AdicionarUsuario();
+			break;
+		default:
+			break;
+		}
+	}while(opcion != 0);
+	return 0;
+}
+void MenuPedidos(Usuario usuario_actual,int nivel)
+{
+	int opcion = -1;
+	do
+	{
+		cout<<"Pedidos"<<endl;
+		cout<<"1. Adicionar"<<endl;
+		cout<<"2. Listar"<<endl;
+		if(nivel == 1)
+		{
+			cout<<"3. Modificar"<<endl;
+			cout<<"4. Eliminar"<<endl;
+		}
+		cout<<"0. Salir"<<endl;
+		opcion = LeerEntero("ingresar opcion:");
+
+		switch(opcion)
+		{
+		case 1:
+			AdicionarVenta(usuario_actual.id);
+			break;
+		case 2:
+			ListarVenta();
+			break;
+		case 3:
+			ModificarVenta();
+			break;
+		case 4:
+			EliminarVenta();
+			break;
+		default:
+			break;
+		}
+	}while(opcion != 0);
+}
+void MenuEmpleados(Usuario usuario_actual,int nivel)
+{
+	int opcion = -1;
+	do
+	{
+		cout<<"Empleados afiliados"<<endl;
+		if(nivel == 1)
+		{
+			cout<<"1. Adicionar"<<endl;
+		}
+		cout<<"2. Listar"<<endl;
+		if(nivel == 1)
+		{
+			cout<<"3. Modificar"<<endl;
+			cout<<"4. Eliminar"<<endl;
+		}
+		cout<<"0. Salir"<<endl;
+		opcion = LeerEntero("ingresar opcion:");
+
+		switch(opcion)
+		{
+		case 1:
+			if(nivel == 1)
+			{
+				AdicionarEmpleado(LeerEntero("Ingresar Codigo"));
+			}
+			break;
+		case 2:
+			ListarEmpleado();
+			break;
+		case 3:
+			if(nivel == 1)
+			{
+				ModificarEmpleado();
+			}
+			break;
+		case 4:
+			if(nivel == 1)
+			{
+				EliminarEmpleado();
+			}
+			break;
+		default:
+			break;
+		}
+	}while(opcion != 0);
+}
+void MenuClientes(Usuario usuario_actual,int nivel)
+{
+	int opcion = -1;
+	do
+	{
+		cout<<"Clientes"<<endl;
+		if(nivel == 1)
+		{
+			cout<<"1. Adicionar"<<endl;
+		}
+		cout<<"2. Listar"<<endl;
+		if(nivel == 1)
+		{
+			cout<<"3. Modificar"<<endl;
+			cout<<"4. Eliminar"<<endl;
+		}
+		cout<<"0. Salir"<<endl;
+		opcion = LeerEntero("ingresar opcion:");
+
+		switch(opcion)
+		{
+		case 1:
+			if(nivel == 1)
+			{
+				AdicionarCliente(LeerEntero("Ingresar id"));
+			}
+			break;
+		case 2:
+			ListarCliente();
+			break;
+		case 3:
+			if(nivel == 1)
+			{
+				ModificarCliente();
+			}
+			break;
+		case 4:
+			if(nivel == 1)
+			{
+				EliminarCliente();
+			}
+			break;
+		default:
+			break;
+		}
+	}while(opcion != 0);
+}
+void MenuPrincipal(Usuario usuario_actual,int nivel)
+{
+	int opcion = -1;
+	do
+	{
+		cout<<"1. Pedidos"<<endl;
+		cout<<"2. Empleados Afiliados"<<endl;
+		cout<<"3. Clientes"<<endl;
+		cout<<"4. Reporte ganancias"<<endl;
+		cout<<"0. Salir"<<endl;
+		opcion = LeerEntero("ingresar opcion:");
+
+		switch(opcion)
+		{
+		case 1:
+			MenuPedidos(usuario_actual,nivel);
+			break;
+		case 2:
+			MenuEmpleados(usuario_actual,nivel);
+			break;
+		case 3:
+			MenuClientes(usuario_actual,nivel);
+			break;
+		case 4:
+			ReporteGanancias(usuario_actual,nivel);
+			break;
+		default:
+			break;
+		}
+	}while(opcion != 0);
+}
+
+int LeerEntero(string mensaje)
+{
+	int x = -1;
+	do
+	{
+		cout<<mensaje;
+		cin>>x;
+		fflush(stdin);
+		cin.clear();
+	}while(x==-1);
+	return x;
+}
+
+string LeerCadena(string mensaje)
+{
+	string str = "";
+	do
+	{
+		cout<<mensaje;
+		getline(cin,str);
+		fflush(stdin);
+		cin.clear();
+	}while(str=="");
+	return str;
+}
+
+void LeerUsuario(Usuario &reg)
+{
+	reg.nombre = LeerCadena("Ingresar nombre de Usuario:");
+	reg.contrasenha = LeerCadena("Ingresar contrasenha:");
+	reg.estado = 1;
+}
+int BuscarNivelUsuario(Usuario &usuario_actual)
+{
+	int nivel = 0;
+	Usuario reg;
+	FILE *alias;
+	alias = fopen("Usuario.dat","rb");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.nombre == usuario_actual.nombre && 
+					reg.contrasenha == usuario_actual.contrasenha )
+				{
+					nivel = 2;
+					usuario_actual = reg;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+	return nivel;
+}
+
+
+void EncabezadoUsuario()
+{
+	cout<<"Id		Nombre"<<endl;
+}
+
+void MostrarUsuario(Usuario reg)
+{
+	cout<<reg.id<<"		";
+	cout<<reg.nombre<<endl;
+}
+
+void AdicionarUsuario()
+{
+	Usuario reg;
+	LeerUsuario(reg);
+	reg.id = LeerEntero("Ingresar identificador usuario (numero):");
+
+	cout<<"1.- Cliente"<<endl;
+	cout<<"2.- Empleado afiliado"<<endl;
+	int opcion = LeerEntero("opcion:");
+	if(opcion == 1)
+	{
+		AdicionarCliente(reg.id);
+	}
+	else
+	{
+		AdicionarEmpleado(reg.id);
+	}
+	FILE *alias;
+	alias = fopen("Usuario.dat","ab");
+	fwrite(&reg,sizeof(reg),1,alias);
+	fclose(alias);
+}
+
+void LeerEmpleado(EmpleadoAfiliado &reg)
+{
+	reg.nombre = LeerCadena("Ingresar nombre de Empleado:");
+	reg.servicio = LeerEntero("Ingresar tipo de servicio(1: Plomero, 2: Electricista, 3: Pintor, 4: Albanhil):");
+	reg.precio = LeerEntero("Ingresar precio de servicio(por dia):");
+
+	reg.estado = 1;
+}
+
+void ReporteGanancias(Usuario usuario_actual,int nivel)
+{
+	Venta reg;
+	FILE *alias;
+	alias = fopen("Venta.dat","rb");
+	float precio = BuscarPrecioEmpleado(usuario_actual.id);
+	float total = 0;
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoVenta();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.idEmpleadoAfiliado == usuario_actual.id)
+				{
+					MostrarVenta(reg);
+					total = total + precio;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+	cout<<endl;
+	cout<<"Total ganancias de empleado: "<<total<<endl;
+}
+
+void EncabezadoEmpleado()
+{
+	cout<<"Id		Nombre		Servicio		Precio"<<endl;
+}
+
+void MostrarEmpleado(EmpleadoAfiliado reg)
+{
+	cout<<reg.id<<"		";
+	cout<<reg.nombre<<"		";
+	cout<<reg.servicio<<"		";
+	cout<<reg.precio<<endl;
+}
+void AdicionarEmpleado(int id)
+{
+	EmpleadoAfiliado reg;
+	LeerEmpleado(reg);
+	reg.id = id;
+	FILE *alias;
+	alias = fopen("EmpleadoAfiliado.dat","ab");
+	fwrite(&reg,sizeof(reg),1,alias);
+	fclose(alias);
+}
+void ListarEmpleado()
+{
+	EmpleadoAfiliado reg;
+	FILE *alias;
+	alias = fopen("EmpleadoAfiliado.dat","rb");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoEmpleado();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				MostrarEmpleado(reg);
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+
+float BuscarPrecioEmpleado(int id)
+{
+	EmpleadoAfiliado reg;
+	FILE *alias;
+	float total = 0;
+	alias = fopen("EmpleadoAfiliado.dat","rb");
+	if(alias == NULL)
+	{
+	}
+	else
+	{
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					total = reg.precio;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+	return total;
+}
+void BuscarEmpleado()
+{
+	EmpleadoAfiliado reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("EmpleadoAfiliado.dat","rb");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoEmpleado();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					MostrarEmpleado(reg);
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+void ModificarEmpleado()
+{
+	EmpleadoAfiliado reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("EmpleadoAfiliado.dat","rb+");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoEmpleado();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					cout<<"Ingresar nuevos datos"<<endl;
+					LeerEmpleado(reg);
+					fseek(alias,sizeof(reg) * (-1),SEEK_CUR);
+					fwrite(&reg,sizeof(reg),1,alias);
+					break;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+void EliminarEmpleado()
+{
+	EmpleadoAfiliado reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("EmpleadoAfiliado.dat","rb+");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoEmpleado();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					cout<<"Eliminado"<<endl;
+					reg.estado = 9;
+					fseek(alias,sizeof(reg) * (-1),SEEK_CUR);
+					fwrite(&reg,sizeof(reg),1,alias);
+					break;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+
+
+void LeerCliente(Cliente &reg)
+{
+	reg.nombre = LeerCadena("Ingresar nombre de Cliente:");
+	reg.correo = LeerCadena("Ingresar correo de Cliente:");
+
+	reg.estado = 1;
+}
+
+void EncabezadoCliente()
+{
+	cout<<"Id		Nombre		Correo"<<endl;
+}
+
+void MostrarCliente(Cliente reg)
+{
+	cout<<reg.id<<"		";
+	cout<<reg.nombre<<"		";
+	cout<<reg.correo<<endl;
+}
+
+void AdicionarCliente(int id)
+{
+	Cliente reg;
+	LeerCliente(reg);
+	reg.id = id;
+	FILE *alias;
+	alias = fopen("Cliente.dat","ab");
+	fwrite(&reg,sizeof(reg),1,alias);
+	fclose(alias);
+}
+
+void ListarCliente()
+{
+	Cliente reg;
+	FILE *alias;
+	alias = fopen("Cliente.dat","rb");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoCliente();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				MostrarCliente(reg);
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+
+void BuscarCliente()
+{
+	Cliente reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("Cliente.dat","rb");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoCliente();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					MostrarCliente(reg);
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+void ModificarCliente()
+{
+	Cliente reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("Cliente.dat","rb+");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoCliente();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					cout<<"Ingresar nuevos datos"<<endl;
+					LeerCliente(reg);
+					fseek(alias,sizeof(reg) * (-1),SEEK_CUR);
+					fwrite(&reg,sizeof(reg),1,alias);
+					break;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+void EliminarCliente()
+{
+	Cliente reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("Cliente.dat","rb+");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoCliente();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					cout<<"Eliminado"<<endl;
+					reg.estado = 9;
+					fseek(alias,sizeof(reg) * (-1),SEEK_CUR);
+					fwrite(&reg,sizeof(reg),1,alias);
+					break;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+
+void LeerVenta(Venta &reg,int cliente)
+{
+	reg.fecha = LeerCadena("Ingresar fecha de Venta:");
+	reg.idCliente = cliente;
+	cout<<endl;
+	ListarEmpleado();
+	cout<<endl;
+	reg.idEmpleadoAfiliado = LeerEntero("Ingresar id de empleado:");
+
+	reg.estado = 1;
+}
+
+void EncabezadoVenta()
+{
+	cout<<"Id		Fecha		Cliente		Empleado"<<endl;
+}
+
+void MostrarVenta(Venta reg)
+{
+	cout<<reg.id<<"		";
+	cout<<reg.fecha<<"		";
+	cout<<reg.idCliente<<"		";
+	cout<<reg.idEmpleadoAfiliado<<endl;
+}
+void AdicionarVenta(int idCliente)
+{
+	Venta reg;
+	reg.idCliente = idCliente;
+	LeerVenta(reg,idCliente);
+	FILE *alias;
+	alias = fopen("Venta.dat","ab");
+	fwrite(&reg,sizeof(reg),1,alias);
+	fclose(alias);
+}
+void ListarVenta()
+{
+	Venta reg;
+	FILE *alias;
+	alias = fopen("Venta.dat","rb");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoVenta();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				MostrarVenta(reg);
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+
+void BuscarVenta()
+{
+	Venta reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("Venta.dat","rb");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoVenta();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					MostrarVenta(reg);
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+void ModificarVenta()
+{
+	Venta reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("Venta.dat","rb+");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoVenta();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					cout<<"Ingresar nuevos datos"<<endl;
+					LeerVenta(reg,reg.idCliente);
+					fseek(alias,sizeof(reg) * (-1),SEEK_CUR);
+					fwrite(&reg,sizeof(reg),1,alias);
+					break;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
+void EliminarVenta()
+{
+	Venta reg;
+	int id = LeerEntero("Id buscado:");
+	FILE *alias;
+	alias = fopen("Venta.dat","rb+");
+	if(alias == NULL)
+	{
+		cout<<"error, archivo no encontrado"<<endl;
+	}
+	else
+	{
+		EncabezadoVenta();
+		fread(&reg,sizeof(reg),1,alias);
+		while(!feof(alias))
+		{
+			if(reg.estado != 9)
+			{
+				if(reg.id == id)
+				{
+					cout<<"Eliminado"<<endl;
+					reg.estado = 9;
+					fseek(alias,sizeof(reg) * (-1),SEEK_CUR);
+					fwrite(&reg,sizeof(reg),1,alias);
+					break;
+				}
+			}
+			fread(&reg,sizeof(reg),1,alias);
+		}
+		fclose(alias);
+	}
+}
